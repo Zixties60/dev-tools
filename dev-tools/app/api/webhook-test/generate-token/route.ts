@@ -4,9 +4,10 @@ import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { TOKEN_EXPIRATION, REDIS_KEYS } from '@/lib/constants';
 
 export async function POST() {
-  let redis;
+  let redis = null;
+  
   try {
-    // Get Redis client
+    // Try to get Redis client - this will fail fast if Redis is unavailable
     redis = await getRedisClient();
     
     // Generate a unique token
@@ -32,10 +33,12 @@ export async function POST() {
     // Return the token
     return NextResponse.json({ token });
   } catch (error) {
-    console.error('Error generating token:', error);
-    return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 });
+    // Return a user-friendly error message
+    return NextResponse.json({ 
+      error: 'Cannot connect to database. Please try again later.' 
+    }, { status: 500 });
   } finally {
-    // Ensure Redis connection is closed
+    // Always clean up the Redis client
     if (redis) {
       await disconnectRedis(redis);
     }

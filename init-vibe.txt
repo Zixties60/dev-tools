@@ -1,0 +1,32 @@
+implement this web app
+- style will use tailwind
+- color scheme of this web will be in theme AI / ROBOT / TOOL
+- this web will have light/dark mode which can be set to light, dark or system which will depend on client settign and save on client side
+
+entire web will have 
+    - header with logo in left corner
+    - appearance (light/dark) button and github link icon in right corner
+    - left menu as tools link, static and cannot collapse
+    - right pane is display area
+
+first path will be a greeting message and instruction to select tools in left menu
+
+first tool will be webhook test
+    this tools will provide a random token for calling webhook as restful POST, show request header and body in table format and return response with specific status and response body format
+
+    database will be redis
+
+    - first page for this tool is generate token page
+        - token will store in redis
+        - token and all request/response data will valid 1 month
+        - token format is not specified, but it must unique until it expired (might include date time or anything to make it unique)
+    - when access page with token eg. http://www.dev-tool.com/webhook-test/this-is-token will show waiting for request page with webhook URL http://www.dev-tool.com/webhook-test/this-is-token and instruction shown
+        - if token is not correct, show generate token page with an error
+        - response format can be set in this page including  response status and body, which can be empty, text or json
+        - response header can be set too with unlimited number of header key
+    - this will allow request come into this page eg. POST http://www.dev-tool.com/webhook-test/this-is-token
+        - allow only application/json or text
+        - if token is not correct, return 404 not found
+        - store raw request body text (json) for each request
+        - return specified reponse that user set
+    - request will show in page, can be view in original request text or table if it is json

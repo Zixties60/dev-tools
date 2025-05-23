@@ -9,6 +9,8 @@ const GenerateTokenView: React.FC<GenerateTokenViewProps> = ({ onTokenGenerated 
   const [error, setError] = useState("");
 
   const generateToken = async () => {
+    if (isGenerating) return;
+    
     setIsGenerating(true);
     setError("");
     
@@ -44,12 +46,12 @@ const GenerateTokenView: React.FC<GenerateTokenViewProps> = ({ onTokenGenerated 
       <h2 className="text-xl font-semibold mb-4">Generate a Webhook URL</h2>
       <p className="mb-6">
         Create a unique webhook URL that you can use to test your webhook integrations. 
-        The URL will be valid for 1 month and will capture all requests sent to it.
+        The URL will be valid for 30 days and will capture all requests sent to it.
       </p>
       
       {error && (
         <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 rounded-md">
-          {error}
+          <p>{error}</p>
         </div>
       )}
       
