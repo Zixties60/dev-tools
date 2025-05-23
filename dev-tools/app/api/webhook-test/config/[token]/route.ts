@@ -5,8 +5,9 @@ import { REDIS_KEYS } from '@/lib/constants';
 // GET endpoint to fetch the configuration for a token
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  context: { params: { token: string } }
 ) {
+  const params = await context.params;
   const token = params.token;
   let redis = null;
 
@@ -46,8 +47,9 @@ export async function GET(
 // POST endpoint to update the configuration for a token
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  context: { params: { token: string } }
 ) {
+  const params = await context.params;
   const token = params.token;
   let redis = null;
 

@@ -5,7 +5,7 @@ import GenerateTokenView from './webhook-test/GenerateTokenView';
 import TokenView from './webhook-test/TokenView';
 import ResponseConfig from './webhook-test/ResponseConfig';
 import RequestsView from './webhook-test/RequestsView';
-import { FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaChevronDown, FaSpinner, FaInfoCircle } from 'react-icons/fa';
 import { formatDate } from '@/lib/utils/dateFormat';
 
 interface SavedToken {
@@ -18,7 +18,8 @@ const WebhookTestTool: React.FC = () => {
   const [savedTokens, setSavedTokens] = useState<SavedToken[]>([]);
   const [activeTab, setActiveTab] = useState<'config' | 'requests'>('config');
   const [showTokenDropdown, setShowTokenDropdown] = useState(false);
-  const [showGenerateView, setShowGenerateView] = useState(false);
+  const [isGeneratingToken, setIsGeneratingToken] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -81,10 +82,39 @@ const WebhookTestTool: React.FC = () => {
     }
   };
 
-  const handleTokenGenerated = (newToken: string) => {
-    setToken(newToken);
-    saveTokenToLocalStorage(newToken);
-    setShowGenerateView(false);
+  const generateNewToken = async () => {
+    if (isGeneratingToken) return;
+    
+    setIsGeneratingToken(true);
+    setTokenError(null);
+    
+    try {
+      const response = await fetch('/api/webhook-test/generate-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate token');
+      }
+      
+      if (!data.token) {
+        throw new Error('No token received from server');
+      }
+      
+      // Set the new token as active
+      setToken(data.token);
+      saveTokenToLocalStorage(data.token);
+    } catch (err) {
+      console.error('Token generation error:', err);
+      setTokenError(err instanceof Error ? err.message : 'Failed to generate token. Please try again.');
+    } finally {
+      setIsGeneratingToken(false);
+    }
   };
 
   const handleTokenSelect = (selectedToken: string) => {
@@ -126,65 +156,100 @@ const WebhookTestTool: React.FC = () => {
     }
   };
 
-  if (showGenerateView || !token) {
-    return <GenerateTokenView onTokenGenerated={handleTokenGenerated} />;
+  // If no token is available, show the generate token view
+  if (!token) {
+    return <GenerateTokenView onTokenGenerated={(newToken) => {
+      setToken(newToken);
+      saveTokenToLocalStorage(newToken);
+    }} />;
   }
 
   // Find the current token in saved tokens to get its creation date
   const currentTokenData = savedTokens.find(t => t.token === token);
   const createdAt = currentTokenData?.createdAt || Date.now();
 
+  // Filter out the current token from the dropdown options
+  const otherTokens = savedTokens.filter(t => t.token !== token);
+
   return (
     <div className="space-y-6">
+      {tokenError && (
+        <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 rounded-md">
+          <p>{tokenError}</p>
+        </div>
+      )}
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         <div className="flex items-center gap-4 order-1 sm:order-2">
           <div className="relative" ref={dropdownRef}>
             <div 
-              className="flex items-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer"
+              className="flex items-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer min-w-[250px]"
               onClick={() => setShowTokenDropdown(!showTokenDropdown)}
             >
-              <span className="font-medium mr-2">Token:</span>
-              <span className="font-mono text-sm truncate max-w-[120px] sm:max-w-[200px]">{token}</span>
-              <FaChevronDown className="ml-2" />
+              <span className="font-medium mr-2 whitespace-nowrap">Token:</span>
+              <span className="font-mono text-sm overflow-hidden text-ellipsis flex-1">{token}</span>
+              <FaChevronDown className="ml-2 flex-shrink-0" />
             </div>
             
             {showTokenDropdown && (
-              <div className="absolute z-10 mt-1 right-0 w-full sm:w-96 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
-                {savedTokens.map((savedToken) => (
-                  <div 
-                    key={savedToken.token}
-                    className="flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                  >
+              <div className="absolute z-10 mt-1 right-0 min-w-full bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-w-md">
+                {otherTokens.length > 0 ? (
+                  otherTokens.map((savedToken) => (
                     <div 
-                      className="truncate font-mono text-sm flex-1"
-                      onClick={() => handleTokenSelect(savedToken.token)}
+                      key={savedToken.token}
+                      className="flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      {savedToken.token}
-                      <div className="text-xs text-gray-500 mt-1">
-                        {formatDate(savedToken.createdAt)}
+                      <div 
+                        className="font-mono text-sm flex-1 overflow-hidden cursor-pointer"
+                        onClick={() => handleTokenSelect(savedToken.token)}
+                      >
+                        <div className="overflow-hidden text-ellipsis">{savedToken.token}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {formatDate(savedToken.createdAt)}
+                        </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteToken(savedToken.token);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-500 p-2 ml-2 flex-shrink-0 rounded transition-colors"
+                        aria-label={`Delete token ${savedToken.token}`}
+                        title="Delete token"
+                      >
+                        <FaTrash size={14} />
+                      </button>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteToken(savedToken.token);
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1 ml-2"
-                      aria-label="Delete token"
-                    >
-                      <FaTrash size={14} />
-                    </button>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500 flex items-center justify-center gap-2">
+                    <FaInfoCircle className="text-blue-500" />
+                    <span>No other tokens available</span>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
           
           <button
-            onClick={() => setShowGenerateView(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+            onClick={() => handleDeleteToken(token)}
+            className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+            aria-label="Delete current token"
           >
-            <FaPlus size={14} />
+            <FaTrash size={14} />
+            Delete
+          </button>
+          
+          <button
+            onClick={generateNewToken}
+            disabled={isGeneratingToken}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-70"
+          >
+            {isGeneratingToken ? (
+              <FaSpinner className="animate-spin" size={14} />
+            ) : (
+              <FaPlus size={14} />
+            )}
             New Token
           </button>
         </div>

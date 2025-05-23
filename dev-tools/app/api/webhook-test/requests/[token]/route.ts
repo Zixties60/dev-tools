@@ -6,7 +6,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { token: string } }
 ) {
-  const token = params.token;
+  // Await params before accessing its properties
+  const { token } = await params;
   let redis = null;
 
   try {

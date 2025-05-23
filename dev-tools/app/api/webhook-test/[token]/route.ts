@@ -3,42 +3,7 @@ import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { REDIS_KEYS } from '@/lib/constants';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
-export async function OPTIONS(
   request: NextRequest,
   { params }: { params: { token: string } }
 ) {
@@ -107,21 +72,6 @@ async function handleWebhook(
       query[key] = value;
     });
     
-    // Store request data in Redis
-    await redis.set(
-      `${REDIS_KEYS.REQUEST}${token}:${requestId}`,
-      JSON.stringify({
-        id: requestId,
-        timestamp,
-        method: request.method,
-        path: url.pathname + url.search,
-        headers,
-        query,
-        body
-      }),
-      { EX: 60 * 60 * 24 * 7 } // Store for 7 days
-    );
-    
     // Prepare response based on configuration
     const responseHeaders: HeadersInit = {};
     config.headers.forEach((header: { key: string; value: string }) => {
@@ -147,8 +97,31 @@ async function handleWebhook(
     }
     
     // Create response
-    return new NextResponse(config.body, {
-      status: config.status,
+    const responseStatus = parseInt(config.status) || 200;
+    const responseBody = config.body || '';
+    
+    // Store both request and response data in Redis
+    await redis.set(
+      `${REDIS_KEYS.REQUEST}${token}:${requestId}`,
+      JSON.stringify({
+        id: requestId,
+        timestamp,
+        method: request.method,
+        path: url.pathname + url.search,
+        headers,
+        query,
+        body,
+        response: {
+          status: responseStatus,
+          headers: responseHeaders,
+          body: responseBody
+        }
+      }),
+      { EX: 60 * 60 * 24 * 7 } // Store for 7 days
+    );
+    
+    return new NextResponse(responseBody, {
+      status: responseStatus,
       headers: responseHeaders
     });
   } catch (error) {

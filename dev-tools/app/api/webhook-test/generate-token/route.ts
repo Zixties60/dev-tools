@@ -13,7 +13,7 @@ export async function POST() {
     // Generate a unique token
     const timestamp = Date.now();
     const randomPart = uuidv4().replace(/-/g, '');
-    const token = `${timestamp.toString(36)}-${randomPart.substring(0, 8)}`;
+    const token = `${timestamp.toString(36)}${randomPart.substring(0, 8)}`;
     
     // Store token in Redis with expiration
     await redis.set(
