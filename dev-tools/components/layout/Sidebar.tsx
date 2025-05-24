@@ -19,6 +19,36 @@ export default function Sidebar({ activeTool }: { activeTool?: string | null }) 
               <span>Webhook Test</span>
             </Link>
           </li>
+          <li>
+            <Link 
+              href="/uuid"
+              className={`flex w-full items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-left ${
+                activeTool === "uuid" ? "bg-gray-100 dark:bg-gray-800" : ""
+              }`}
+            >
+              <span>UUID Generator</span>
+            </Link>
+          </li>
+          <li>
+            <Link 
+              href="/randomize-string"
+              className={`flex w-full items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-left ${
+                activeTool === "randomize-string" ? "bg-gray-100 dark:bg-gray-800" : ""
+              }`}
+            >
+              <span>Random String Generator</span>
+            </Link>
+          </li>
+          <li>
+            <Link 
+              href="/encrypt-decrypt"
+              className={`flex w-full items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-left ${
+                activeTool === "encrypt-decrypt" ? "bg-gray-100 dark:bg-gray-800" : ""
+              }`}
+            >
+              <span>AES Encryption</span>
+            </Link>
+          </li>
           {/* Add more tools here */}
         </ul>
       </nav>
