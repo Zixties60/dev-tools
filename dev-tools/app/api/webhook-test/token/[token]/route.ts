@@ -15,23 +15,77 @@ export async function GET(
     
     // Check if token exists
     const tokenKey = `${REDIS_KEYS.TOKEN}${token}`;
-    const tokenExists = await redis.exists(tokenKey);
+    const tokenData = await redis.get(tokenKey);
     
-    if (!tokenExists) {
+    if (!tokenData) {
       return NextResponse.json({ error: 'Token not found' }, { status: 404 });
     }
     
-    // Get token creation timestamp
-    const createdAt = await redis.get(`${tokenKey}:created`);
+    // Parse token data
+    const data = JSON.parse(tokenData);
     
     return NextResponse.json({
       token,
-      createdAt: createdAt ? parseInt(createdAt) : null
+      name: data.name || token,
+      createdAt: data.created || Date.now(),
+      config: data.config || null
     });
   } catch (error) {
     console.error('Error fetching token info:', error);
     return NextResponse.json({ 
       error: 'Failed to fetch token information' 
+    }, { status: 500 });
+  } finally {
+    if (redis) {
+      await disconnectRedis(redis);
+    }
+  }
+}
+
+// Update token information (e.g., name)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { token: string } }
+) {
+  const token = params.token;
+  let redis = null;
+
+  try {
+    const body = await request.json();
+    const { name } = body;
+    
+    if (!name || typeof name !== 'string') {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    }
+    
+    redis = await getRedisClient();
+    
+    // Check if token exists
+    const tokenKey = `${REDIS_KEYS.TOKEN}${token}`;
+    const tokenData = await redis.get(tokenKey);
+    
+    if (!tokenData) {
+      return NextResponse.json({ error: 'Token not found' }, { status: 404 });
+    }
+    
+    // Update token data with new name
+    const data = JSON.parse(tokenData);
+    data.name = name.trim();
+    
+    // Save updated data
+    await redis.set(tokenKey, JSON.stringify(data), { 
+      KEEPTTL: true // Keep the existing TTL
+    });
+    
+    return NextResponse.json({
+      token,
+      name: data.name,
+      updated: true
+    });
+  } catch (error) {
+    console.error('Error updating token:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update token information' 
     }, { status: 500 });
   } finally {
     if (redis) {

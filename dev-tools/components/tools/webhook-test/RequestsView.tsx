@@ -320,7 +320,7 @@ const RequestsView: React.FC<RequestsViewProps> = ({ token }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div>
         <h2 className="text-xl font-semibold mb-4">Received Requests</h2>
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -331,7 +331,7 @@ const RequestsView: React.FC<RequestsViewProps> = ({ token }) => {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div>
         <h2 className="text-xl font-semibold mb-4">Received Requests</h2>
         <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 rounded-md">
           <p>{error}</p>
@@ -342,7 +342,7 @@ const RequestsView: React.FC<RequestsViewProps> = ({ token }) => {
 
   if (requests.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div>
         <h2 className="text-xl font-semibold mb-4">Received Requests</h2>
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No requests received yet.</p>
@@ -363,7 +363,7 @@ const RequestsView: React.FC<RequestsViewProps> = ({ token }) => {
   const sortedRequests = [...requests].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div>
       <h2 className="text-xl font-semibold mb-4">Received Requests</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

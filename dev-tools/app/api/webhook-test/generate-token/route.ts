@@ -15,11 +15,17 @@ export async function POST() {
     const randomPart = uuidv4().replace(/-/g, '');
     const token = `${timestamp.toString(36)}${randomPart.substring(0, 8)}`;
     
+    // Generate a default name with date
+    const date = new Date();
+    const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+    const name = `New Token-${formattedDate}`;
+    
     // Store token in Redis with expiration
     await redis.set(
       `${REDIS_KEYS.TOKEN}${token}`, 
       JSON.stringify({
         created: timestamp,
+        name: name,
         config: {
           status: 200,
           type: 'json',
@@ -31,7 +37,7 @@ export async function POST() {
     );
     
     // Return the token
-    return NextResponse.json({ token });
+    return NextResponse.json({ token, name });
   } catch (error) {
     // Return a user-friendly error message
     return NextResponse.json({ 

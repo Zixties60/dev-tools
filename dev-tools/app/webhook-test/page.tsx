@@ -1,7 +1,8 @@
 "use client";
 
-import MainLayout from "@/components/layout/MainLayout";
-import WebhookTestTool from "@/components/tools/WebhookTestTool";
+import React from 'react';
+import MainLayout from '@/components/layout/MainLayout';
+import WebhookTestTool from '@/components/tools/WebhookTestTool';
 
 export default function WebhookTestPage() {
   return (

@@ -244,7 +244,7 @@ const ResponseConfig: React.FC<ResponseConfigProps> = ({ token }) => {
 
   if (initialLoad) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div>
         <h2 className="text-xl font-semibold mb-4">Response Configuration</h2>
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -254,7 +254,7 @@ const ResponseConfig: React.FC<ResponseConfigProps> = ({ token }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div>
       <h2 className="text-xl font-semibold mb-4">Response Configuration</h2>
       <p className="mb-4 text-gray-600 dark:text-gray-400">
         Customize how your webhook endpoint responds to requests.
@@ -382,10 +382,6 @@ const ResponseConfig: React.FC<ResponseConfigProps> = ({ token }) => {
       </div>
     </div>
   );
-};
-
-const toggleTheme = () => {
-  setIsDarkMode(prev => !prev);
 };
 
 export default ResponseConfig;
