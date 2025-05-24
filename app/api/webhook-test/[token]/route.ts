@@ -3,17 +3,9 @@ import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { REDIS_KEYS } from '@/lib/constants';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  return handleWebhook(request, params);
-}
-
-async function handleWebhook(
-  request: NextRequest,
-  { token }: { token: string }
-) {
+// Use the most basic form without custom types
+export async function POST(request: Request, { params }: any) {
+  const token = params.token;
   let redis = null;
   
   try {

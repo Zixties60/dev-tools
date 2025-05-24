@@ -4,7 +4,7 @@ import { REDIS_KEYS } from '@/lib/constants';
 
 // Get all tokens
 export async function GET(request: NextRequest) {
-  let redis = null;
+  let redis: any = null;
 
   try {
     redis = await getRedisClient();
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     
     // Get all token data
     const tokensData = await Promise.all(
-      tokenKeys.map(async (key) => {
+      tokenKeys.map(async (key: string) => {
         const tokenData = await redis.get(key);
         if (!tokenData) return null;
         

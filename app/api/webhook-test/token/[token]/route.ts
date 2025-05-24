@@ -3,11 +3,9 @@ import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { REDIS_KEYS } from '@/lib/constants';
 
 // Get information about a specific token
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  const token = params.token;
+export async function GET(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
   let redis = null;
 
   try {
@@ -43,11 +41,9 @@ export async function GET(
 }
 
 // Update token information (e.g., name)
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  const token = params.token;
+export async function PATCH(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
   let redis = null;
 
   try {
@@ -94,11 +90,9 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  const token = params.token;
+export async function DELETE(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
   let redis = null;
 
   try {

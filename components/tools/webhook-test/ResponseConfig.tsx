@@ -68,7 +68,7 @@ const ResponseConfig: React.FC<ResponseConfigProps> = ({ token }) => {
     const loadEditorDependencies = async () => {
       try {
         // Load JSON language support only for JSON type
-        let langExtension = [];
+        let langExtension: any[] = [];
         
         if (responseType === 'json') {
           try {
@@ -98,8 +98,7 @@ const ResponseConfig: React.FC<ResponseConfigProps> = ({ token }) => {
         console.error('Error loading editor dependencies:', err);
         setEditorReady(true);
       }
-    };
-    
+    };    
     loadEditorDependencies();
   }, [isDarkMode, responseType]);
 

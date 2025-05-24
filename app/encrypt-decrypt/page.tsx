@@ -47,12 +47,11 @@ export default function EncryptDecrypt() {
       ).toString();
       
       setOutput(encrypted);
-    } catch (e) {
-      setError(`Encryption failed: ${e.message}`);
+    } catch (e: unknown) {
+      setError(`Encryption failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
       setOutput('');
     }
   };
-
   const handleDecrypt = () => {
     if (!input) {
       setError('Please enter text to decrypt');
@@ -98,7 +97,7 @@ export default function EncryptDecrypt() {
     window.crypto.getRandomValues(randomBytes);
     
     // Convert to base64 for readability
-    const randomKey = btoa(String.fromCharCode.apply(null, randomBytes));
+    const randomKey = btoa(Array.from(randomBytes).map(byte => String.fromCharCode(byte)).join(''));
     setKey(randomKey);
   };
 

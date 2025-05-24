@@ -3,12 +3,9 @@ import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { REDIS_KEYS } from '@/lib/constants';
 
 // GET endpoint to fetch the configuration for a token
-export async function GET(
-  request: NextRequest,
-  context: { params: { token: string } }
-) {
-  const params = await context.params;
-  const token = params.token;
+export async function GET(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
   let redis = null;
 
   try {
@@ -45,12 +42,9 @@ export async function GET(
 }
 
 // POST endpoint to update the configuration for a token
-export async function POST(
-  request: NextRequest,
-  context: { params: { token: string } }
-) {
-  const params = await context.params;
-  const token = params.token;
+export async function POST(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
   let redis = null;
 
   try {

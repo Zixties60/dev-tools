@@ -13,12 +13,12 @@ interface TokenParams {
 }
 
 interface TokenDetailPageProps {
-  params: TokenParams | Promise<TokenParams>;
+  params: Promise<TokenParams> | undefined;
 }
 
 const TokenDetailPage: React.FC<TokenDetailPageProps> = ({ params }) => {
   // Unwrap the params object using React.use() with proper typing
-  const resolvedParams = React.use(params as Promise<TokenParams>) as TokenParams;
+  const resolvedParams = params ? React.use(params) : { token: '' };
   const token = resolvedParams.token;
   
   const router = useRouter();
@@ -35,7 +35,9 @@ const TokenDetailPage: React.FC<TokenDetailPageProps> = ({ params }) => {
 
   // Load token information when component mounts
   useEffect(() => {
-    fetchTokenInfo();
+    if (token) {
+      fetchTokenInfo();
+    }
   }, [token]);
 
   // Focus input when editing starts

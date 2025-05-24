@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getRedisClient, disconnectRedis } from '@/lib/redis';
 import { REDIS_KEYS } from '@/lib/constants';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
-  // Await params before accessing its properties
-  const { token } = await params;
-  let redis = null;
+export async function GET(request: NextRequest) {
+  // Extract token from URL path
+  const token = request.nextUrl.pathname.split('/').pop();
+  let redis: any = null;
 
   try {
     redis = await getRedisClient();
@@ -29,7 +26,7 @@ export async function GET(
     
     // Get all request data
     const requestsData = await Promise.all(
-      requestKeys.map(async (key) => {
+      requestKeys.map(async (key: string) => {
         const data = await redis.get(key);
         return data ? JSON.parse(data) : null;
       })

@@ -32,7 +32,7 @@ export async function getRedisClient() {
 }
 
 // This function safely disconnects a Redis client
-export async function disconnectRedis(client) {
+export async function disconnectRedis(client: ReturnType<typeof createClient>) {
   if (client) {
     try {
       if (client.isOpen) {
