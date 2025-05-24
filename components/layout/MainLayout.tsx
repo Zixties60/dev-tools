@@ -153,9 +153,9 @@ export default function MainLayout({
               )}
             </div>
           )}
-          <a 
-            href="https://github.com" 
-            target="_blank" 
+          <a
+            href="https://github.com/Zixties60"
+            target="_blank"
             rel="noopener noreferrer"
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
             aria-label="GitHub repository"
